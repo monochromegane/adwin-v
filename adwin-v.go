@@ -98,10 +98,6 @@ func (a *AdwinV) Conservative(t bool) {
 	a.angles.Conservative(t)
 }
 
-func (a *AdwinV) Sum() float64 {
-	return 0.0
-}
-
 func (a *AdwinV) updateMean(x []float64) {
 	if a.angles.Detected() {
 		a.total = 1
