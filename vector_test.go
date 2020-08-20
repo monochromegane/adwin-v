@@ -25,6 +25,30 @@ func TestNormalize(t *testing.T) {
 	}
 }
 
+func TestOnlineMean(t *testing.T) {
+	xs := [][]float64{
+		[]float64{1.0, 2.0, 3.0},
+		[]float64{2.0, 4.0, 6.0},
+		[]float64{3.0, 6.0, 9.0},
+	}
+
+	expects := [][]float64{
+		[]float64{1.0, 2.0, 3.0},
+		[]float64{1.5, 3.0, 4.5},
+		[]float64{2.0, 4.0, 6.0},
+	}
+
+	mean := make([]float64, 3)
+	for i, _ := range xs {
+		mean = onlineMean(xs[i], mean, i)
+		for j, m := range mean {
+			if m != expects[i][j] {
+				t.Errorf("onlineMean should return %f, but %f", m, expects[i][j])
+			}
+		}
+	}
+}
+
 const float64EqualityThreshold = 1e-9
 
 func almostEqual(a, b float64) bool {

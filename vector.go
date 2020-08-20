@@ -31,3 +31,11 @@ func normalize(x []float64) []float64 {
 	}
 	return normalized
 }
+
+func onlineMean(x, mean []float64, n int) []float64 {
+	updatedMean := make([]float64, len(mean))
+	for i, _ := range mean {
+		updatedMean[i] = (float64(n)*mean[i] + x[i]) / float64(1+n)
+	}
+	return updatedMean
+}
