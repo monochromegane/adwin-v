@@ -1,11 +1,17 @@
 package adwinv
 
-import "github.com/monochromegane/adwin"
+import (
+	"math"
+
+	"github.com/monochromegane/adwin"
+)
 
 type AdwinV struct {
-	dim        int
-	magnitudes adwin.AdaptiveWindow
-	angles     adwin.AdaptiveWindow
+	dim             int
+	magnitudes      adwin.AdaptiveWindow
+	angles          adwin.AdaptiveWindow
+	scaleMagnitudes float64
+	scaleAngles     float64
 
 	total int
 	means []float64
@@ -35,16 +41,21 @@ func newAdwinV(dim int, deltaM, deltaA float64, version int) *AdwinV {
 		magnitudes: adwinM,
 		angles:     adwinA,
 
-		means: make([]float64, dim),
+		scaleMagnitudes: 1.0,
+		scaleAngles:     1.0,
+		means:           make([]float64, dim),
 	}
 }
 
 func (a *AdwinV) Add(x []float64) {
 	magnitude := l2Norm(x)
-	a.magnitudes.Add(magnitude)
+	a.magnitudes.Add(magnitude * a.scaleMagnitudes)
 
 	angle := 1.0 - similarity(a.means, x)
-	a.angles.Add(angle)
+	if math.IsNaN(angle) {
+		angle = 0.0
+	}
+	a.angles.Add(angle * a.scaleAngles)
 
 	a.updateMean(x)
 }
@@ -60,6 +71,26 @@ func (a *AdwinV) Size() int {
 		return magnitudesSize
 	}
 	return anglesSize
+}
+
+func (a *AdwinV) ScaleMagnitudes(scale float64) {
+	a.scaleMagnitudes = scale
+}
+
+func (a *AdwinV) ScaleAngles(scale float64) {
+	a.scaleAngles = scale
+}
+
+func (a *AdwinV) SizeMagnitudes() int {
+	return a.magnitudes.Size()
+}
+
+func (a *AdwinV) SizeAngles() int {
+	return a.angles.Size()
+}
+
+func (a *AdwinV) Mean() []float64 {
+	return a.means
 }
 
 func (a *AdwinV) Conservative(t bool) {
