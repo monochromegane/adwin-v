@@ -22,3 +22,12 @@ func similarity(a, b []float64) float64 {
 
 	return p / (magA * magB)
 }
+
+func normalize(x []float64) []float64 {
+	normalized := make([]float64, len(x))
+	l2norm := l2Norm(x)
+	for i, _ := range x {
+		normalized[i] = x[i] / l2norm
+	}
+	return normalized
+}
