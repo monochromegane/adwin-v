@@ -7,6 +7,7 @@ import (
 )
 
 type AdwinV struct {
+	version         int
 	dim             int
 	magnitudes      adwin.AdaptiveWindow
 	angles          adwin.AdaptiveWindow
@@ -15,6 +16,8 @@ type AdwinV struct {
 
 	total int
 	means []float64
+
+	sync bool
 }
 
 func NewAdwinV(dim int, deltaM, deltaA float64) *AdwinV {
@@ -37,6 +40,7 @@ func newAdwinV(dim int, deltaM, deltaA float64, version int) *AdwinV {
 		adwinA = adwin.NewAdwin2(deltaA)
 	}
 	return &AdwinV{
+		version:    version,
 		dim:        dim,
 		magnitudes: adwinM,
 		angles:     adwinA,
@@ -58,6 +62,10 @@ func (a *AdwinV) Add(x []float64) {
 	a.angles.Add(angle * a.scaleAngles)
 
 	a.updateMean(x)
+
+	if a.sync {
+		a.syncWindow()
+	}
 }
 
 func (a *AdwinV) Detected() bool {
@@ -96,6 +104,21 @@ func (a *AdwinV) Mean() []float64 {
 func (a *AdwinV) Conservative(t bool) {
 	a.magnitudes.Conservative(t)
 	a.angles.Conservative(t)
+}
+
+func (a *AdwinV) SyncWindow(t bool) {
+	a.sync = t
+}
+
+func (a *AdwinV) syncWindow() {
+	if a.version == 2 {
+		if a.magnitudes.Detected() && !a.angles.Detected() {
+			a.angles.(*adwin.Adwin2).Drop()
+		}
+		if !a.magnitudes.Detected() && a.angles.Detected() {
+			a.magnitudes.(*adwin.Adwin2).Drop()
+		}
+	}
 }
 
 func (a *AdwinV) updateMean(x []float64) {
