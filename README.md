@@ -1,4 +1,4 @@
-# ADWIN-V
+# ADWIN-V [![Actions Status](https://github.com/monochromegane/adwin-v/workflows/Go/badge.svg)](https://github.com/monochromegane/adwin-v/actions)
 
 ADWIN-V is an adaptive windowing algorithm for vector data.
 It detects a change point using the vector magnitude and cosine similarity between mean vector and the vector.
